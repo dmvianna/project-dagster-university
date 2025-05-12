@@ -3,7 +3,6 @@ from pathlib import Path  # noqa: F401
 import pytest
 import yaml  # noqa: F401
 from dagster._core.errors import DagsterTypeCheckDidNotPass  # noqa: F401
-
 from dagster_testing.assets import lesson_3
 
 
@@ -54,12 +53,12 @@ def file_population():
     return 9294108
 
 
-def test_state_population_file():
-    pass
+def test_state_population_file(file_output):
+    assert lesson_3.state_population_file() == file_output
 
 
-def test_total_population():
-    pass
+def test_total_population(file_output, file_population):
+    assert lesson_3.total_population(file_output) == file_population
 
 
 def test_func_wrong_type():
