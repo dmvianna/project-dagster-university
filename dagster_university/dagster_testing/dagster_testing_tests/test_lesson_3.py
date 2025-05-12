@@ -96,11 +96,13 @@ def test_assets_config(config_file, file_example_output):
     assert result.output_for_node("total_population_config") == 8500000
 
 
-def test_assets_config_yaml():
+def test_assets_config_yaml(file_example_output):
     _assets = [lesson_3.state_population_file_config, lesson_3.total_population_config]
     result = dg.materialize(
         assets=_assets,
-        run_config=dg.RunConfig({"state_population_file_config": config_file}),
+        run_config=yaml.safe_load(
+            (Path(__file__).absolute().parent / "configs/lesson_3.yaml").open()
+        ),
     )
     assert result.success
 
