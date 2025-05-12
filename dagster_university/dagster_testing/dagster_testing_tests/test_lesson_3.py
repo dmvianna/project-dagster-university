@@ -90,14 +90,6 @@ def test_state_population_file_config(config_file, file_example_output):
     assert lesson_3.state_population_file_config(config_file) == file_example_output
 
 
-def test_state_population_file_config_fixture_1():
-    pass
-
-
-def test_state_population_file_config_fixture_2():
-    pass
-
-
 def test_assets_config():
     pass
 
