@@ -80,8 +80,10 @@ def test_assets(file_output, file_population):
     assert result.output_for_node("total_population") == file_population
 
 
-def test_state_population_file_config():
-    pass
+def test_state_population_file_config(file_example_output):
+    file_path = Path(__file__).absolute().parent / "data/test.csv"
+    config_file = lesson_3.FilepathConfig(path=file_path.as_posix())
+    assert lesson_3.state_population_file_config(config_file) == file_example_output
 
 
 def test_state_population_file_config_fixture_1():
