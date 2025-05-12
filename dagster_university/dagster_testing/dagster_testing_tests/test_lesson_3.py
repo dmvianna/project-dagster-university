@@ -54,6 +54,12 @@ def file_population():
     return 9294108
 
 
+@pytest.fixture()
+def config_file():
+    file_path = Path(__file__).absolute().parent / "data/test.csv"
+    return lesson_3.FilepathConfig(path=file_path.as_posix())
+
+
 def test_state_population_file(file_output):
     assert lesson_3.state_population_file() == file_output
 
@@ -80,9 +86,7 @@ def test_assets(file_output, file_population):
     assert result.output_for_node("total_population") == file_population
 
 
-def test_state_population_file_config(file_example_output):
-    file_path = Path(__file__).absolute().parent / "data/test.csv"
-    config_file = lesson_3.FilepathConfig(path=file_path.as_posix())
+def test_state_population_file_config(config_file, file_example_output):
     assert lesson_3.state_population_file_config(config_file) == file_example_output
 
 
