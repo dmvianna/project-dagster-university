@@ -1,5 +1,6 @@
 from pathlib import Path  # noqa: F401
 
+import dagster as dg
 import pytest
 import yaml  # noqa: F401
 from dagster._core.errors import DagsterTypeCheckDidNotPass  # noqa: F401
@@ -69,8 +70,14 @@ def test_wrong_type_annotation_error():
     pass
 
 
-def test_assets():
-    pass
+def test_assets(file_output, file_population):
+    _assets = [lesson_3.state_population_file, lesson_3.total_population]
+    result = dg.materialize(_assets)
+    assert result.success
+
+    state_population = file_output
+    assert result.output_for_node("state_population_file") == state_population
+    assert result.output_for_node("total_population") == file_population
 
 
 def test_state_population_file_config():
