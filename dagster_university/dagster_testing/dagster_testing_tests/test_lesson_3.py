@@ -90,8 +90,16 @@ def test_state_population_file_config(config_file, file_example_output):
     assert lesson_3.state_population_file_config(config_file) == file_example_output
 
 
-def test_assets_config():
-    pass
+def test_assets_config(config_file, file_example_output):
+    _assets = [lesson_3.state_population_file_config, lesson_3.total_population_config]
+    result = dg.materialize(
+        assets=_assets,
+        run_config=dg.RunConfig({"state_population_file_config": config_file}),
+    )
+    assert result.success
+
+    assert result.output_for_node("state_population_file_config") == file_example_output
+    assert result.output_for_node("total_population_config") == 8500000
 
 
 def test_assets_config_yaml():
