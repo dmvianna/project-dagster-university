@@ -44,6 +44,11 @@ def func_wrong_type() -> str:
 
 
 @dg.asset
+def func_wrong_type_annotation() -> str:
+    return 2
+
+
+@dg.asset
 def total_population_wrong_type(state_population_file: list[dict]) -> str:
     return sum([int(x["Population"]) for x in state_population_file])
 

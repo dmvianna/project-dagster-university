@@ -67,7 +67,8 @@ def test_func_wrong_type():
 
 
 def test_wrong_type_annotation_error():
-    pass
+    with pytest.raises(DagsterTypeCheckDidNotPass):
+        assert lesson_3.func_wrong_type_annotation() == 2
 
 
 def test_assets(file_output, file_population):
