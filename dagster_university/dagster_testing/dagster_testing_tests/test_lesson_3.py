@@ -111,8 +111,10 @@ def test_assets_config_yaml(file_example_output):
     assert result.output_for_node("total_population_config") == 8500000
 
 
-def test_state_population_file_logging():
-    pass
+def test_state_population_file_logging(file_output):
+    context = dg.build_asset_context()
+    result = lesson_3.state_population_file_logging(context)
+    assert result == file_output
 
 
 def test_assets_context():
