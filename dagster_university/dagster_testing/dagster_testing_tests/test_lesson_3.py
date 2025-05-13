@@ -123,8 +123,9 @@ def test_assets_context(file_output):
     assert result.output_for_node("state_population_file_logging") == file_output
 
 
-def test_partition_asset_number():
-    pass
+def test_partition_asset_number(file_output):
+    context = dg.build_asset_context(partition_key="ny.csv")
+    assert lesson_3.state_population_file_partition(context) == file_output
 
 
 def test_assets_partition():
