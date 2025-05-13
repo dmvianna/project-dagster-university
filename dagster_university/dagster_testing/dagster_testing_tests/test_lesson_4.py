@@ -77,8 +77,24 @@ def test_state_population_api_resource_mock(mock_get, example_response):
     mock_get.assert_called_once_with(lesson_4.API_URL, params={"state": "ny"})
 
 
-def test_state_population_api_assets():
-    pass
+@patch("requests.get")
+def test_state_population_api_assets(mock_get, example_response, api_output):
+    mock_response = Mock()
+    mock_response.json.return_value = example_response
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    result = dg.materialize(
+        assets=[
+            lesson_4.state_population_api_resource,
+            lesson_4.total_population_resource,
+        ],
+        resources={"state_population_resource": lesson_4.StatePopulation()},
+    )
+    assert result.success
+
+    assert result.output_for_node("state_population_api_resource") == api_output
+    assert result.output_for_node("total_population_resource") == 9082539
 
 
 def test_state_population_api_assets_config():
