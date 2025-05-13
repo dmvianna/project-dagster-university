@@ -117,8 +117,10 @@ def test_state_population_file_logging(file_output):
     assert result == file_output
 
 
-def test_assets_context():
-    pass
+def test_assets_context(file_output):
+    result = dg.materialize(assets=[lesson_3.state_population_file_logging])
+    assert result.success
+    assert result.output_for_node("state_population_file_logging") == file_output
 
 
 def test_partition_asset_number():
