@@ -97,8 +97,27 @@ def test_state_population_api_assets(mock_get, example_response, api_output):
     assert result.output_for_node("total_population_resource") == 9082539
 
 
-def test_state_population_api_assets_config():
-    pass
+@patch("requests.get")
+def test_state_population_api_assets_config(mock_get, example_response, api_output):
+    mock_response = Mock()
+    mock_response.json.return_value = example_response
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    result = dg.materialize(
+        assets=[
+            lesson_4.state_population_api_resource_config,
+            lesson_4.total_population_resource_config,
+        ],
+        resources={"state_population_resource": lesson_4.StatePopulation()},
+        run_config=dg.RunConfig(
+            {"state_population_api_resource_config": lesson_4.StateConfig(name="ny")}
+        ),
+    )
+    assert result.success
+
+    assert result.output_for_node("state_population_api_resource_config") == api_output
+    assert result.output_for_node("total_population_resource_config") == 9082539
 
 
 def test_state_population_api_mocked_resource():
