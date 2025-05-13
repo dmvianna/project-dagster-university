@@ -130,5 +130,22 @@ def test_state_population_api_mocked_resource(fake_city):
     assert result[0] == fake_city
 
 
-def test_state_population_api_assets_mocked_resource():
-    pass
+def test_state_population_api_assets_mocked_resource(fake_city):
+    mocked_resource = Mock()
+    mocked_resource.get_cities.return_value = [fake_city]
+
+    result = dg.materialize(
+        assets=[
+            lesson_4.state_population_api_resource_config,
+            lesson_4.total_population_resource_config,
+        ],
+        resources={"state_population_resource": mocked_resource},
+        run_config=dg.RunConfig(
+            {"state_population_api_resource_config": lesson_4.StateConfig(name="ny")}
+        ),
+    )
+
+    assert result.success
+
+    assert result.output_for_node("state_population_api_resource_config") == [fake_city]
+    assert result.output_for_node("total_population_resource_config") == 42
