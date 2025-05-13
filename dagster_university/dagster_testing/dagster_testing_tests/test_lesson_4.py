@@ -2,7 +2,6 @@ from unittest.mock import Mock, patch  # noqa: F401
 
 import dagster as dg  # noqa: F401
 import pytest
-
 from dagster_testing.assets import lesson_4  # noqa: F401
 
 
@@ -44,8 +43,21 @@ def fake_city():
     }
 
 
-def test_state_population_api():
-    pass
+@patch("requests.get")
+def test_state_population_api(mock_get, example_response):
+    mock_response = Mock()
+    mock_response.json.return_value = example_response
+    mock_response.raise_for_status.return_value = None
+    mock_get.return_value = mock_response
+
+    result = lesson_4.state_population_api()
+
+    assert len(result) == 2
+    assert result[0] == {
+        "city": "New York",
+        "population": 8804190,
+    }
+    mock_get.assert_called_once_with(lesson_4.API_URL, params={"state": "ny"})
 
 
 def test_state_population_api_resource_mock():
