@@ -128,5 +128,9 @@ def test_partition_asset_number(file_output):
     assert lesson_3.state_population_file_partition(context) == file_output
 
 
-def test_assets_partition():
-    pass
+def test_assets_partition(file_output):
+    result = dg.materialize(
+        assets=[lesson_3.state_population_file_partition], partition_key="ny.csv"
+    )
+    assert result.success
+    assert result.output_for_node("state_population_file_partition") == file_output
