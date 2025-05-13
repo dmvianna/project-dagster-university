@@ -120,8 +120,14 @@ def test_state_population_api_assets_config(mock_get, example_response, api_outp
     assert result.output_for_node("total_population_resource_config") == 9082539
 
 
-def test_state_population_api_mocked_resource():
-    pass
+def test_state_population_api_mocked_resource(fake_city):
+    mocked_resource = Mock()
+    mocked_resource.get_cities.return_value = [fake_city]
+
+    result = lesson_4.state_population_api_resource(mocked_resource)
+
+    assert len(result) == 1
+    assert result[0] == fake_city
 
 
 def test_state_population_api_assets_mocked_resource():
