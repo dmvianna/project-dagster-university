@@ -31,3 +31,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["dagster_essentials"]
+[tool.pyright]
+venv = ".venv"
+venvPath = "."
