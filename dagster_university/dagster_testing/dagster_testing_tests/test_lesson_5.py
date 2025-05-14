@@ -4,7 +4,6 @@ import dagster as dg
 import psycopg2
 import pytest
 from dagster_snowflake import SnowflakeResource
-
 from dagster_testing.assets import lesson_5
 
 from .fixtures import docker_compose  # noqa: F401
@@ -76,5 +75,17 @@ def test_total_population_database():
     pass
 
 
-def test_assets():
-    pass
+@pytest.mark.integration
+def test_assets(docker_compose, postgres_resource, query_output_ny):
+    result = dg.materialize(
+        assets=[
+            lesson_5.state_population_database,
+            lesson_5.total_population_database,
+        ],
+        resources={"database": postgres_resource},
+    )
+
+    assert result.success
+
+    assert result.output_for_node("state_population_database") == query_output_ny
+    assert result.output_for_node("total_population_database") == 8082539
