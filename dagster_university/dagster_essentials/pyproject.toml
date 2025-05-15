@@ -13,6 +13,7 @@ dependencies = [
     "pandas[parquet]",
     "shapely",
     "matplotlib",
+    "pyright>=1.1.400",
 ]
 
 [tool.uv]
