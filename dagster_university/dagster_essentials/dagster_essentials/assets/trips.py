@@ -47,7 +47,8 @@ def taxi_trips() -> None:
     create or replace table trips as (
     select
     VendorId as vendor_id,
-    PULocationID as dropoff_zone_id,
+    PULocationID as pickup_zone_id,
+    DOLocationID as dropoff_zone_id,
     RatecodeID as rate_code_id,
     payment_type as payment_type,
     tpep_dropoff_datetime as dropoff_datetime,
@@ -76,7 +77,7 @@ def taxi_zones() -> None:
     The taxi zones.
     """
     query = f"""
-    create or replace table taxi_zones as (
+    create or replace table zones as (
     select
     LocationID as zone_id,
     zone as zone,
