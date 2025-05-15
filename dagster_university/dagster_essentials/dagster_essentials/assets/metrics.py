@@ -4,6 +4,7 @@ import dagster as dg
 import duckdb
 import geopandas as gpd
 import matplotlib.pyplot as plt
+from dagster._utils.backoff import backoff
 from dagster_essentials.assets import constants
 
 
@@ -58,3 +59,41 @@ def manhattan_map() -> None:
 
     plt.savefig(constants.MANHATTAN_MAP_FILE_PATH, format="png", bbox_inches="tight")
     plt.close(fig)
+
+
+@dg.asset(deps=["taxi_trips"])
+def trips_by_week() -> dg.MaterializeResult:
+    """
+    Produces a CSV.
+    """
+    query = """
+    select
+    date_trunc('week', pickup_datetime) + interval '1 week' as period,
+    count(1) as num_trips,
+    sum(passenger_count) as passenger_count,
+    sum(total_amount) as total_amount,
+    sum(trip_distance) as trip_distance
+    from trips
+    group by date_trunc('week', pickup_datetime)
+    """
+
+    conn = backoff(
+        fn=duckdb.connect,
+        retry_on=(RuntimeError, duckdb.IOException),
+        kwargs={
+            "database": os.getenv("DUCKDB_DATABASE"),
+        },
+        max_retries=10,
+    )
+    trips = conn.execute(query).fetch_df()
+    preview_df = trips[:5].to_markdown(index=False)
+
+    with open(constants.TRIPS_BY_WEEK_FILE_PATH, "w") as output_file:
+        output_file.write(trips.to_csv())
+
+    return dg.MaterializeResult(
+        metadata={
+            "row_count": dg.MetadataValue.int(trips.shape[0]),
+            "preview": dg.MetadataValue.md(preview_df),  # pyright: ignore [reportArgumentType]
+        }
+    )
