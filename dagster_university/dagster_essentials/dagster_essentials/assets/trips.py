@@ -1,4 +1,7 @@
+import io
+
 import dagster as dg
+import pandas as pd
 from dagster_duckdb.resource import DuckDBResource
 from dagster_essentials.assets import constants
 from dagster_essentials.partitions import monthly_partition
@@ -7,7 +10,7 @@ import requests
 
 
 @dg.asset(partitions_def=monthly_partition, group_name="raw_files")
-def taxi_trips_file(context: dg.AssetExecutionContext) -> None:
+def taxi_trips_file(context: dg.AssetExecutionContext) -> dg.MaterializeResult:
     """
     The raw parquet files for the taxi trips dataset. Sourced from the
     NYC Open Data portal.
@@ -23,9 +26,16 @@ def taxi_trips_file(context: dg.AssetExecutionContext) -> None:
     ) as output_file:
         output_file.write(raw_trips.content)
 
+    num_rows = len(
+        pd.read_parquet(constants.TAXI_TRIPS_TEMPLATE_FILE_PATH.format(month_to_fetch))
+    )
+    return dg.MaterializeResult(
+        metadata={"Number of records": dg.MetadataValue.int(num_rows)}
+    )
+
 
 @dg.asset(group_name="raw_files")
-def taxi_zones_file() -> None:
+def taxi_zones_file() -> dg.MaterializeResult:
     """
     Sourced from the NYC Open Data portal.
     """
@@ -35,6 +45,11 @@ def taxi_zones_file() -> None:
 
     with open(constants.TAXI_ZONES_FILE_PATH, "wb") as output_file:
         output_file.write(raw_trips.content)
+
+    num_rows = pd.read_csv(io.StringIO(raw_trips.text)).shape[0]
+    return dg.MaterializeResult(
+        metadata={"Number of records": dg.MetadataValue.int(num_rows)}
+    )
 
 
 @dg.asset(
