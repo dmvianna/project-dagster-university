@@ -1,11 +1,12 @@
 import dagster as dg
-import requests
 from dagster_duckdb.resource import DuckDBResource
 from dagster_essentials.assets import constants
 from dagster_essentials.partitions import monthly_partition
 
+import requests
 
-@dg.asset(partitions_def=monthly_partition)
+
+@dg.asset(partitions_def=monthly_partition, group_name="raw_files")
 def taxi_trips_file(context: dg.AssetExecutionContext) -> None:
     """
     The raw parquet files for the taxi trips dataset. Sourced from the
@@ -23,7 +24,7 @@ def taxi_trips_file(context: dg.AssetExecutionContext) -> None:
         output_file.write(raw_trips.content)
 
 
-@dg.asset
+@dg.asset(group_name="raw_files")
 def taxi_zones_file() -> None:
     """
     Sourced from the NYC Open Data portal.
@@ -36,7 +37,9 @@ def taxi_zones_file() -> None:
         output_file.write(raw_trips.content)
 
 
-@dg.asset(deps=["taxi_trips_file"], partitions_def=monthly_partition)
+@dg.asset(
+    deps=["taxi_trips_file"], partitions_def=monthly_partition, group_name="ingested"
+)
 def taxi_trips(context: dg.AssetExecutionContext, database: DuckDBResource) -> None:
     """
     The raw taxi trips dataset, loaded into a DuckDB database,
@@ -83,7 +86,7 @@ def taxi_trips(context: dg.AssetExecutionContext, database: DuckDBResource) -> N
         conn.execute(query)
 
 
-@dg.asset(deps=["taxi_zones_file"])
+@dg.asset(deps=["taxi_zones_file"], group_name="ingested")
 def taxi_zones(database: DuckDBResource) -> None:
     """
     The taxi zones.
