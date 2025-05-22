@@ -1,4 +1,4 @@
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 import dagster as dg
 from dagster_and_dbt.project import dbt_project
@@ -6,6 +6,9 @@ from dagster_dbt import DagsterDbtTranslator, DbtCliResource, dbt_assets
 
 
 class CustomizedDagsterDbtTranslator(DagsterDbtTranslator):
+    def get_group_name(self, dbt_resource_props: Mapping[str, Any]) -> Optional[str]:
+        return dbt_resource_props["fqn"][1]
+
     def get_asset_key(self, dbt_resource_props: Mapping[str, Any]) -> dg.AssetKey:
         resource_type = dbt_resource_props["resource_type"]
         name = dbt_resource_props["name"]
