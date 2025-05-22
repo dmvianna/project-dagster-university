@@ -20,6 +20,7 @@ dependencies = [
     "smart_open",
     "boto3",
     "pyarrow",
+    "pyright>=1.1.401",
 ]
 
 [tool.uv]
