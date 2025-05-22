@@ -5,4 +5,4 @@ from dagster_dbt import DbtCliResource, dbt_assets
 
 @dbt_assets(manifest=dbt_project.manifest_path)
 def dbt_analytics(context: dg.AssetExecutionContext, dbt: DbtCliResource):
-    yield from dbt.cli(["run"], context=context).stream()
+    yield from dbt.cli(["build"], context=context).stream()
