@@ -1,8 +1,12 @@
+import json
 from typing import Any, Mapping, Optional
 
 import dagster as dg
+from dagster_and_dbt.partitions import daily_partition
 from dagster_and_dbt.project import dbt_project
 from dagster_dbt import DagsterDbtTranslator, DbtCliResource, dbt_assets
+
+INCREMENTAL_SELECTOR = "config.materialized:incremental"
 
 
 class CustomizedDagsterDbtTranslator(DagsterDbtTranslator):
@@ -21,6 +25,24 @@ class CustomizedDagsterDbtTranslator(DagsterDbtTranslator):
 @dbt_assets(
     manifest=dbt_project.manifest_path,
     dagster_dbt_translator=CustomizedDagsterDbtTranslator(),
+    exclude=INCREMENTAL_SELECTOR,
 )
 def dbt_analytics(context: dg.AssetExecutionContext, dbt: DbtCliResource):
     yield from dbt.cli(["build"], context=context).stream()
+
+
+@dbt_assets(
+    manifest=dbt_project.manifest_path,
+    dagster_dbt_translator=CustomizedDagsterDbtTranslator(),
+    select=INCREMENTAL_SELECTOR,
+    partitions_def=daily_partition,
+)
+def incremental_dbt_models(context: dg.AssetExecutionContext, dbt: DbtCliResource):
+    time_window = context.partition_time_window
+    dbt_vars = {
+        "min_date": time_window.start.strftime("%Y-%m-%d"),
+        "max_date": time_window.end.strftime("%Y-%m-%d"),
+    }
+    yield from dbt.cli(
+        ["build", "--vars", json.dumps(dbt_vars)], context=context
+    ).stream()
